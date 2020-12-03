@@ -34,6 +34,13 @@ static bool FileExists(const char *pool_path) {
 
 #define LOG(msg) std::cout << msg << "\n"
 
+
+/*
+ * 如果*p==*u的话 *p=v
+ * 如果*p!=*u的话 *u=*p
+ * false:强一致还是弱一致
+ * 后面两个分别是成功时的内存序和失败后的内存序
+ */
 #define CAS(_p, _u, _v)                                             \
   (__atomic_compare_exchange_n(_p, _u, _v, false, __ATOMIC_ACQUIRE, \
                                __ATOMIC_ACQUIRE))
@@ -54,6 +61,14 @@ static bool FileExists(const char *pool_path) {
     mask = _mm256_movemask_epi8(rv_mask);                           \
   } while (0)
 
+/*
+ * 比较指纹的函数
+ * __m128i 128bits的整数
+ * _mm_set1_epi8(char a)将128划分成16个8位的部分 将a赋值给__m128i
+ * _mm_loadu_si128(__m128i const* mem_addr) 将mem_addr起始的128位的值取出来
+ * _mm_cmpeq_epi8(seg_data, key_data)比较函数 将seg_data和key_data 8位8位的进行比较，相等返回1，不相等返回0
+ * _mm_movemask_epi8(__m128i a) 取a的MSB位（每8位取一次），返回的是个int类型的函数 int的高位补0，低16位根据a的MSB来得到
+ */
 #define SSE_CMP8(src, key)                                       \
   do {                                                           \
     const __m128i key_data = _mm_set1_epi8(key);                 \
@@ -63,6 +78,7 @@ static bool FileExists(const char *pool_path) {
     mask = _mm_movemask_epi8(rv_mask);                           \
   } while (0)
 
+//判断var在pos处的数据是否为1 是的话 返回1 否的话返回0
 #define CHECK_BIT(var, pos) ((((var) & (1 << pos)) > 0) ? (1) : (0))
 
 inline void mfence(void) { asm volatile("mfence" ::: "memory"); }

@@ -91,7 +91,7 @@ struct Allocator {
   }
 
   static void Persist(void* ptr, size_t size) {
-    pmemobj_persist(instance_->pm_pool_, ptr, size);
+    F(instance_->pm_pool_, ptr, size);
   }
 
   static void NTWrite64(uint64_t* ptr, uint64_t val) {
@@ -99,6 +99,9 @@ struct Allocator {
   }
 
   static void NTWrite32(uint32_t* ptr, uint32_t val) {
+    //Stores the data in a to the address p without polluting the caches.
+    // If the cache line containing address p is already in the cache, the cache will be updated.
+
     _mm_stream_si32((int*)ptr, val);
   }
 
