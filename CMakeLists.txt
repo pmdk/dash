@@ -3,7 +3,7 @@ if (POLICY CMP0048)
 endif ()
 
 project(dash)
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.10)
 include(FetchContent)
 include(ExternalProject)
 
@@ -18,37 +18,37 @@ endif ()
 
 ##################### PMDK ####################
 set(PMDK_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/pmdk")
-ExternalProject_Add(PMDK
-        GIT_REPOSITORY https://github.com/HaoPatrick/pmdk.git
-        GIT_TAG addr-patch
-	BUILD_IN_SOURCE 1
-        BUILD_COMMAND $(MAKE)
-        PREFIX ${PMDK_PREFIX}
-        CONFIGURE_COMMAND ""
-        INSTALL_COMMAND ""
-        LOG_DOWNLOAD ON
-        LOG_CONFIGURE ON
-        LOG_BUILD ON
-        )
+# ExternalProject_Add(PMDK
+#         GIT_REPOSITORY https://github.com/HaoPatrick/pmdk.git
+#         GIT_TAG addr-patch
+# 	BUILD_IN_SOURCE 1
+#         BUILD_COMMAND $(MAKE)
+#         PREFIX ${PMDK_PREFIX}
+#         CONFIGURE_COMMAND ""
+#         INSTALL_COMMAND ""
+#         LOG_DOWNLOAD ON
+#         LOG_CONFIGURE ON
+#         LOG_BUILD ON
+#         )
 
-include_directories(${PMDK_PREFIX}/src/PMDK/src/include)
+include_directories(/usr/local/include)
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-  link_directories(${PMDK_PREFIX}/src/PMDK/src/debug)
+  link_directories(/usr/local/lib)
 else ()
-  link_directories(${PMDK_PREFIX}/src/PMDK/src/nondebug)
+  link_directories(/usr/local/lib)
 endif ()
 
 
 ##################### Epoch Reclaim ####################
-FetchContent_Declare(
-        epoch_reclaimer
-        GIT_REPOSITORY https://github.com/XiangpengHao/epoch-reclaimer.git
-        GIT_TAG master
-)
-if (NOT epoch_reclaimer_POPULATED)
-  FetchContent_Populate(epoch_reclaimer)
-  include_directories(${epoch_reclaimer_SOURCE_DIR})
-endif ()
+#FetchContent_Declare(
+#        epoch_reclaimer
+#        GIT_REPOSITORY https://github.com/XiangpengHao/epoch-reclaimer.git
+#        GIT_TAG master
+#)
+#if (NOT epoch_reclaimer_POPULATED)
+#  FetchContent_Populate(epoch_reclaimer)
+#  include_directories(${epoch_reclaimer_SOURCE_DIR})
+#endif ()
 
 option(USE_PMEM "enable persistent memory support" ON)
 
@@ -66,7 +66,7 @@ if (USE_PMEM MATCHES "ON")
   add_executable(example src/example.cpp)
   target_link_libraries(test_pmem PRIVATE ${libs_to_link})
   target_link_libraries(example PRIVATE ${libs_to_link})
-  add_dependencies(test_pmem PMDK)
-  add_dependencies(example PMDK)
+  # add_dependencies(test_pmem PMDK)
+  # add_dependencies(example PMDK)
 else ()
 endif ()
