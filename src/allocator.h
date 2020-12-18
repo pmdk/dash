@@ -2,7 +2,7 @@
 // Copyright (c) Simon Fraser University & The Chinese University of Hong Kong. All rights reserved.
 // Licensed under the MIT license.
 #pragma once
-#include <garbage_list.h>
+#include "garbage_list.h"
 #include <sys/mman.h>
 
 #include "../util/utils.h"
@@ -91,7 +91,7 @@ struct Allocator {
   }
 
   static void Persist(void* ptr, size_t size) {
-    F(instance_->pm_pool_, ptr, size);
+    pmemobj_persist(instance_->pm_pool_, ptr, size);
   }
 
   static void NTWrite64(uint64_t* ptr, uint64_t val) {
